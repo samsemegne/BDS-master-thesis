@@ -1,0 +1,915 @@
+---
+title: "Untitled"
+author: "Sam Semegne"
+date: "2024-07"
+output: html_document
+---
+
+## X
+
+```{r}
+source("load.R")
+```
+
+
+## Debugging
+
+```{r}
+remove_broken_procedure_files("spikes_8-8_100(2)", "omitted")
+```
+
+```{r}
+find_common_run_ids("spikes_4-8_100", "spikes_4-8_100(2)")
+```
+
+## Results
+
+```{r}
+folder = "flats_100"
+
+df = get_results_df(
+  procedure_type = "custom_bssm_procedure",
+  suffix = "_model1",
+  policy = "alpha",
+  policy_args = list(), #list(lambda = .8, a = 3),
+  folder = folder
+)
+
+utils::head(df)
+```
+
+```{r fig.height=3, fig.width=7}
+proc = load_procedure(
+  "25281128", "custom_bssm_procedure", "_model1", "spikes_4-8_100")
+
+#plot(proc, policy = "ewma")
+#plot(proc, policy = "alpha")
+#plot(proc, ylim = c(0., .12), policy = "ewma", flip=F)
+#print(to_df_row(proc, policy = "ewma", policy_args = list(lambda = .8, a = 3)))
+```
+
+
+```{r fig.height=3, fig.width=6.235}
+# flats_100 --------------------------------------------------------------------
+bssm_proc = load_procedure(
+  "1003940396", "custom_bssm_procedure", "_model1", "flats_100")
+
+#lqas_proc = load_procedure(
+#  "1003940396", "AcceptanceSampling_lqas_procedure", "", "flats_100")
+
+#plot(lqas_proc, policy = "alpha")
+plot(bssm_proc, ylim = c(0., .12), ylab = "Proportion", flip = FALSE, lwd = 2L,
+     yaxt = "n")
+
+title("(a) Dataset 1", cex.main = 1L)
+#axis(2L, at = c(0., .1))
+
+#plot(lqas_proc, policy = "ewma", ylim = c(0., .12), xlab = "t",
+#     ylab = "Proportion", flip = FALSE, lwd = 2L, yaxt = "n")
+
+#axis(2L, at = c(0., .1))
+
+
+# flats_16-32_100 --------------------------------------------------------------
+#bssm_proc = load_procedure(
+#  "1019445404", "custom_bssm_procedure", "_model1", "flats_16-32_100")
+
+lqas_proc = load_procedure(
+  "1019445404", "AcceptanceSampling_lqas_procedure", "", "flats_16-32_100")
+
+#plot(lqas_proc, policy = "alpha")
+#plot(bssm_proc, ylim = c(0., .12), ylab = "Proportion", flip = FALSE, lwd = 2L,
+#     yaxt = "n")
+
+#axis(2L, at = c(0., .1))
+
+plot(lqas_proc, policy = "ewma", ylim = c(0., .12), xlab = "t",
+     ylab = "Proportion", flip = FALSE, lwd = 2L, yaxt = "n")
+
+title("(b) Dataset 2", cex.main = 1L)
+#axis(2L, at = c(0., .1))
+
+# spikes_8-8_100 ---------------------------------------------------------------
+bssm_proc = load_procedure(
+  "1051133041", "custom_bssm_procedure", "_model1", "spikes_8-8_100")
+
+lqas_proc = load_procedure(
+  "1051133041", "AcceptanceSampling_lqas_procedure", "", "spikes_8-8_100")
+
+#plot(lqas_proc, policy = "alpha")
+#plot(bssm_proc, ylim = c(0., .12), ylab = "Proportion", flip = FALSE, lwd = 2L)
+plot(lqas_proc, policy = "ewma", ylim = c(0., .12), xlab = "t",
+     ylab = "Proportion", flip = FALSE, lwd = 2L)
+
+title("(c) Dataset 3", cex.main = 1L)
+
+
+# spikes_4-8_100 ---------------------------------------------------------------
+bssm_proc = load_procedure(
+  "1002956682", "custom_bssm_procedure", "_model1", "spikes_4-8_100")
+
+#lqas_proc = load_procedure(
+#  "1002956682", "AcceptanceSampling_lqas_procedure", "", "spikes_4-8_100")
+
+#plot(lqas_proc, policy = "alpha")
+plot(bssm_proc, ylim = c(0., .12), ylab = "Proportion", flip = FALSE, lwd = 2L)
+title("(d) Dataset 4", cex.main = 1L)
+#plot(lqas_proc, policy = "ewma", ylim = c(0., .12), xlab = "t",
+#     ylab = "Proportion", flip = FALSE, lwd = 2L)
+```
+
+
+```{r fig.height=5, fig.width=7}
+plot(1:10, 1:10, type = "n", xaxt = "n", yaxt = "n", frame.plot = FALSE,
+     xlab = "", ylab = "")
+
+legend(
+  "topleft",
+  legend = c(
+    "True Proportion", 
+    "Observed Proportion", 
+    "EWMA", 
+    "EWMA's UCL", 
+    "B-SSM's 90% Posterior Credible Interval for θ"
+  ),
+  lty = c(1L, 1L, 1L, 2L, NA),
+  lwd = c(2L, 2L, 2L, 2L, NA),
+  col = c("black", "gray", "#39568CFF", "#39568CFF", NA),
+  fill = c(NA, NA, NA, NA, grDevices::adjustcolor("#39568CFF", alpha = .5)),
+  border = NA
+)
+
+```
+
+
+
+
+
+```{r}
+procedure_info = list(
+  #list(
+  #  procedure_type = "AcceptanceSampling_lqas_procedure",
+  #  suffix = "",
+  #  policy = "gamma",
+  #  policy_args = list(),
+  #  stub = "LQAS"
+  #),
+  list(
+    procedure_type = "AcceptanceSampling_lqas_procedure",
+    suffix = "",
+    policy = "ewma",
+    policy_args = list(a = 1.5, lambda = .2),
+    stub = "EWMA(λ = 0.2, A = 1.5)"
+  ),
+  list(
+    procedure_type = "AcceptanceSampling_lqas_procedure",
+    suffix = "",
+    policy = "ewma",
+    policy_args = list(a = 1.5, lambda = .5),
+    stub = "EWMA(λ = 0.5, A = 1.5)"
+  ),
+  list(
+    procedure_type = "AcceptanceSampling_lqas_procedure",
+    suffix = "",
+    policy = "ewma",
+    policy_args = list(a = 1.5, lambda = .8),
+    stub = "EWMA(λ = 0.8, A = 1.5)"
+  )#,
+  #list(
+  #  procedure_type = "custom_bssm_procedure",
+  #  suffix = "_model1",
+  #  policy = "gamma",
+  #  policy_args = list(),
+  #  stub = "B-SSM"
+  #)
+)
+
+foo = list()
+folders = c("flats_100", "flats_16-32_100", "spikes_8-8_100", "spikes_4-8_100")
+
+for (folder in folders) {
+  bar = lapply(procedure_info, \(proc_info) {
+    get_results_df(
+      procedure_type = proc_info$procedure_type,
+      suffix = proc_info$suffix,
+      policy = proc_info$policy,
+      policy_args = proc_info$policy_args,
+      folder = folder,
+      method = proc_info$stub
+    )
+  })
+  
+  foo = c(foo, bar)
+}
+```
+
+```{r}
+saveRDS(foo, "foo_gamma")
+```
+
+
+```{r}
+foo = readRDS("foo")
+```
+
+```{r}
+max_sim_runs = lapply(foo, \(x) sum(x$is_ok, na.rm = FALSE)) |>
+  unlist(FALSE, FALSE) |>
+  min(na.rm = FALSE)
+
+
+is_not_ok_id = lapply(foo, \(x) {
+  row.names(x)[!x$is_ok]
+}) |>
+  unlist(FALSE, FALSE) |>
+  unique(FALSE)
+
+```
+
+
+```{r}
+## Creates the data.frame holding the performance metrics for foo_gamma.
+bar = list()
+for (df in foo) {
+  method = attr(df, "method", TRUE)
+  folder = attr(df, "folder", TRUE)
+  
+  is_ok = !(row.names(df) %in% is_not_ok_id)
+  
+  df = df[is_ok, ]
+  df = df[1:max_sim_runs, ]
+  
+  x = new_df(
+    method = method,
+    dataset = folder,
+    num_runs = nrow(df)
+  )
+  
+  total = nrow(df)
+  aql = 0.025
+  
+  x$true_pos =  sum(df$decision & df$true_prop <= aql, na.rm = FALSE) / total
+  x$false_pos = sum(df$decision & df$true_prop > aql, na.rm = FALSE) / total
+  x$true_neg =  sum(!df$decision & df$true_prop > aql, na.rm = FALSE) / total
+  x$false_neg = sum(!df$decision & df$true_prop <= aql, na.rm = FALSE) / total
+  x$acc = x$true_pos + x$true_neg
+  x$sens = x$true_pos / (x$true_pos + x$false_neg)
+  x$spec = x$true_neg / (x$true_neg + x$false_pos)
+  
+  # Bootstrap
+  acc = double(0L)
+  sens = double(0L)
+  spec = double(0L)
+  for (i in 1:nrow(df)) {
+    true_pos =  sum(df$decision[-i] & df$true_prop[-i] <= aql, na.rm = FALSE) /  (total - 1L)
+    false_pos = sum(df$decision[-i] & df$true_prop[-i] > aql, na.rm = FALSE) /   (total - 1L)
+    true_neg =  sum(!df$decision[-i] & df$true_prop[-i] > aql, na.rm = FALSE) /  (total - 1L)
+    false_neg = sum(!df$decision[-i] & df$true_prop[-i] <= aql, na.rm = FALSE) / (total - 1L)
+    acc[i] =  true_pos + true_neg
+    sens[i] = true_pos / (true_pos + false_neg)
+    spec[i] = true_neg / (true_neg + false_pos)
+  }
+  
+  
+  q_lower = .025
+  q_upper = .975
+  x$acc_upper = stats::quantile(acc, q_upper)
+  x$sens_upper = stats::quantile(sens, q_upper)
+  x$spec_upper = stats::quantile(spec, q_upper)
+  x$acc_lower =  stats::quantile(acc, q_lower)
+  x$sens_lower = stats::quantile(sens, q_lower)
+  x$spec_lower = stats::quantile(spec, q_lower)
+  
+  bar = c(bar, list(x))
+}
+
+baz = do.call(rbind, bar)
+baz
+```
+
+
+
+```{r}
+## Creates the data.frame holding the performance metrics for 'foo'.
+
+set.seed(1L)
+
+bar = list()
+for (df in foo) {
+  method = attr(df, "method", TRUE)
+  folder = attr(df, "folder", TRUE)
+  
+  is_ok = !(row.names(df) %in% is_not_ok_id)
+  
+  df = df[is_ok, ]
+  df = df[1:max_sim_runs, ]
+  
+  total = nrow(df) * 100L # 100 is N decisions (hardcoded)
+  x = data.frame(
+    method = method,
+    dataset = folder,
+    num_runs = nrow(df)
+  )
+  
+  x$sens = sum(df$true_pos, na.rm = FALSE) /
+    sum(df$true_pos + df$false_neg, na.rm = FALSE)
+  
+  x$spec = sum(df$true_neg, na.rm = FALSE) /
+    sum(df$true_neg + df$false_pos, na.rm = FALSE)
+  
+  x$acc =  sum(df$true_pos + df$true_neg, na.rm = FALSE) / total 
+  x$true_pos =  sum(df$true_pos, na.rm = FALSE) / total
+  x$false_pos = sum(df$false_pos, na.rm = FALSE) / total
+  x$true_neg =  sum(df$true_neg, na.rm = FALSE) / total
+  x$false_neg = sum(df$false_neg, na.rm = FALSE) / total
+  
+  q_lower = .025
+  q_upper = .975
+  x$sens_lower = stats::quantile(df$sens, q_lower)
+  x$sens_upper = stats::quantile(df$sens, q_upper)
+  x$spec_lower = stats::quantile(df$spec, q_lower)
+  x$spec_upper = stats::quantile(df$spec, q_upper)
+  x$acc_lower =  stats::quantile(df$p_acc, q_lower)
+  x$acc_upper =  stats::quantile(df$p_acc, q_upper)
+  x$num_not_ok = sum(!is_ok, na.rm = FALSE)
+  
+  stopifnot(exprs = {
+    nrow(x) == 1L
+    lotsim:::is_prop_xy(x$sens)
+    lotsim:::is_prop_xy(x$spec)
+    lotsim:::is_prop_xy(x$acc)
+    lotsim:::is_prop_xy(x$true_pos)
+    lotsim:::is_prop_xy(x$false_pos)
+    lotsim:::is_prop_xy(x$true_neg)
+    lotsim:::is_prop_xy(x$false_neg)
+    #all((x$true_pos + x$true_neg + x$false_pos + x$false_neg) == 1L,
+    #            na.rm = FALSE)
+  })
+  
+  bar = c(bar, list(x))
+}
+
+baz = do.call(rbind, bar)
+```
+
+
+```{r}
+baz
+```
+
+```{r}
+smth[2:4, ] = baz[1:3, ]
+smth[7:9, ] = baz[4:6, ]
+smth[12:14, ] = baz[7:9, ]
+smth[17:19, ] = baz[10:12, ]
+smth
+```
+
+
+
+```{r}
+## Creates a table with performance metrics.
+
+k = cbind(
+  dataset = baz["dataset"],
+  method = baz["method"],
+  acc_l = baz["acc_lower"] |> round(3L),
+  acc = baz["acc"] |> round(3L),
+  acc_u = baz["acc_upper"] |> round(3L),
+  
+  sens_l = baz["sens_lower"] |> round(3L),
+  sens = baz["sens"] |> round(3L),
+  sens_u = baz["sens_upper"] |> round(3L),
+  
+  spec_l = baz["spec_lower"] |> round(3L),
+  spec = baz["spec"] |> round(3L),
+  spec_u = baz["spec_upper"] |> round(3L)
+)
+
+k$dataset = c(
+  "flats_100" = 1L,
+  "flats_16-32_100" = 2L,
+  "spikes_8-8_100" = 3L,
+  "spikes_4-8_100" = 4L
+)[k$dataset]
+
+#table2 = flextable::flextable(k)
+#flextable::save_as_docx(table2, path = "ok.docx")
+```
+
+```{r}
+## Formats the contents of the performance metrics table into Latex.
+k_str = k |> apply(1L, \(o) { 
+  o1 = as.character(o)
+  o1 = ifelse(startsWith(o1, "0."), substr(o1, 2L, nchar(o1)), o1)
+  o1 = ifelse(endsWith(o1, ".000"), substr(o1, 1L, 1L), o1)
+  o1 = ifelse(o1 == "EWMA(λ = 0.2, A = 1.5)", "EWMA(.2, 1.5)", o1)
+  o1 = ifelse(o1 == "EWMA(λ = 0.5, A = 1.5)", "EWMA(.5, 1.5)", o1)
+  o1 = ifelse(o1 == "EWMA(λ = 0.8, A = 1.5)", "EWMA(.8, 1.5)", o1)
+  paste0(o1, collapse = " & ")
+})
+
+k_str |> paste0("\\\\", collapse="\n") |> cat()
+```
+
+
+```{r}
+## Rearranges the dataset factor levels for the next chunk that plots the
+## performance metrics.
+
+baz$dataset = factor(
+  baz$dataset,
+  levels = c(
+    "spikes_4-8_100",
+    "spikes_8-8_100",
+    "flats_16-32_100",
+    "flats_100"
+))
+```
+
+
+```{r fig.height=9, fig.width=6.235}
+
+cols = c("#440154FF", "#39568CFF", "#238A8DFF", "#55C667FF", "#B8DE29FF") 
+
+
+# Accuracy
+acc_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = acc, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = acc_lower, ymax = acc_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::ylim(0L, 1L) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(x = "Dataset", y = "Accuracy", title = "(a)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+
+# Accuracy zoomed in
+acc_plot_zoomed = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = acc, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = acc_lower, ymax = acc_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::coord_flip(ylim = c(.5, 1L)) +
+  ggplot2::labs(x = "Dataset", y = "Accuracy (zoomed in)", title = "(b)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+  
+# Sensitivity
+sens_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = sens, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = sens_lower, ymax = sens_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::ylim(0L, 1L) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(x = "Dataset", y = "Sensitivity", title = "(c)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+
+# Sensitivity zoomed
+sens_zoomed_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = sens, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = sens_lower, ymax = sens_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::coord_flip(ylim = c(.67, 1L)) +
+  ggplot2::labs(x = "Dataset", y = "Sensitivity (zoomed in)", title = "(d)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+
+# Specificity
+spec_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = spec, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = spec_lower, ymax = spec_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::ylim(0L, 1L) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(x = "Dataset", y = "Specificity", title = "(e)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+
+# Plot to get the legend object
+legend_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = sens, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = sens_lower, ymax = sens_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::ylim(0L, 1L) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(x = "Dataset", y = "Sensitivity", color = "Method") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank()
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  #ggplot2::scale_x_discrete(labels = c(1L, 2L, 4L, 3L)) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+plot_legend = ggpubr::get_legend(legend_plot)
+legend_obj = ggpubr::as_ggplot(plot_legend)
+
+
+# Creates an empty area.
+blank = grid::grid.rect(gp = grid::gpar(col = "white"))
+
+
+gridExtra::grid.arrange(
+  acc_plot,
+  acc_plot_zoomed,
+  sens_plot, 
+  sens_zoomed_plot,
+  spec_plot,
+  legend_obj,
+  nrow = 3L,
+  ncol = 2L
+)
+```
+
+
+```{r fig.height=9, fig.width=6.235}
+
+cols = c("#440154FF", "#39568CFF", "#238A8DFF", "#55C667FF", "#B8DE29FF") 
+
+
+# Accuracy
+acc_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = acc, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = acc_lower, ymax = acc_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::ylim(0L, 1L) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(x = "Dataset", y = "Accuracy", title = "(a)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+
+# Accuracy zoomed in
+acc_plot_zoomed = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = acc, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = acc_lower, ymax = acc_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::coord_flip(ylim = c(.5, 1L)) +
+  ggplot2::labs(x = "Dataset", y = "Accuracy (zoomed in)", title = "(b)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+  
+# Sensitivity
+sens_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = sens, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = sens_lower, ymax = sens_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::ylim(0L, 1L) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(x = "Dataset", y = "Sensitivity", title = "(c)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+
+# Sensitivity zoomed
+sens_zoomed_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = sens, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = sens_lower, ymax = sens_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::coord_flip(ylim = c(.4, 1L)) +
+  ggplot2::labs(x = "Dataset", y = "Sensitivity (zoomed in)", title = "(d)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+
+# Specificity
+spec_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = spec, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = spec_lower, ymax = spec_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::ylim(0L, 1L) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(x = "Dataset", y = "Specificity", title = "(e)") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "none"
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  ggplot2::scale_x_discrete(labels = 4:1) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+
+# Plot to get the legend object
+legend_plot = ggplot2::ggplot(
+    baz, ggplot2::aes(x = dataset, y = sens, color = method)
+  ) +
+  ggplot2::geom_point( 
+    position = ggplot2::position_dodge(.5)
+  ) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = sens_lower, ymax = sens_upper),
+    position = ggplot2::position_dodge(.5),
+    width = .32
+  ) +
+  ggplot2::ylim(0L, 1L) +
+  ggplot2::coord_flip() +
+  ggplot2::labs(x = "Dataset", y = "Sensitivity", color = "Method") +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank()
+  ) +
+  ggplot2::scale_color_manual(values = cols) +
+  #ggplot2::scale_x_discrete(labels = c(1L, 2L, 4L, 3L)) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 10L))
+
+plot_legend = ggpubr::get_legend(legend_plot)
+legend_obj = ggpubr::as_ggplot(plot_legend)
+
+
+# Creates an empty area.
+blank = grid::grid.rect(gp = grid::gpar(col = "white"))
+
+
+gridExtra::grid.arrange(
+  acc_plot,
+  acc_plot_zoomed,
+  sens_plot, 
+  sens_zoomed_plot,
+  spec_plot,
+  legend_obj,
+  nrow = 3L,
+  ncol = 2L
+)
+```
+
+## Data descriptives
+
+```{r}
+# Get the run_id's of the omitted B-SSM simulation runs
+foo = readRDS("foo_gamma")
+
+max_sim_runs = lapply(foo, \(x) sum(x$is_ok, na.rm = FALSE)) |>
+  unlist(FALSE, FALSE) |>
+  min(na.rm = FALSE)
+
+
+is_not_ok_id = lapply(foo, \(x) {
+  row.names(x)[!x$is_ok]
+}) |>
+  unlist(FALSE, FALSE) |>
+  unique(FALSE)
+
+
+info = list(
+  list(
+    proc_type = "AcceptanceSampling_lqas_procedure",
+    suffix = "",
+    folder = "flats_100"
+  ),
+  list(
+    proc_type = "AcceptanceSampling_lqas_procedure",
+    suffix = "",
+    folder = "flats_16-32_100"
+  ),
+  list(
+    proc_type = "AcceptanceSampling_lqas_procedure",
+    suffix = "",
+    folder = "spikes_8-8_100"
+  ),
+  list(
+    proc_type = "AcceptanceSampling_lqas_procedure",
+    suffix = "",
+    folder = "spikes_4-8_100"
+  )
+)
+  
+foobar = lapply(info, \(k) {
+  get_data_descriptives_df(
+    k$proc_type,
+    k$suffix,
+    k$folder,
+    study = "post",
+    dataset = k$folder
+  )
+})
+```
+
+
+```{r}
+true_prop_obj = list()
+baz = list()
+for (df in foobar) {
+  is_ok = !(row.names(df) %in% is_not_ok_id)
+  df = df[is_ok, ]
+  df = df[1:max_sim_runs, ]
+  
+  x = new_df(
+    dataset = attr(df, "dataset", TRUE),
+    nrow = nrow(df),
+    prevalence = mean(!df$is_acceptable),
+    mean_unique_true_prop_x = mean(df$true_prop[!df$is_acceptable], na.rm = FALSE)
+  )
+  
+  true_prop_obj = c(true_prop_obj, list(df$true_prop))
+  baz = c(baz, list(x))
+}
+
+baz
+```
+
+
+```{r}
+true_prop_obj = list()
+baz = list()
+for (df in foobar) {
+  is_ok = !(row.names(df) %in% is_not_ok_id)
+  df = df[is_ok, ]
+  df = df[1:max_sim_runs, ]
+  #df = df[!is_ok, ]
+  
+  
+  all_prop = df$prop |> unlist(FALSE, FALSE)
+  all_true_prop = df$true_prop |> unlist(FALSE, FALSE)
+  
+  #nrow(df)
+  #str(all_prop)
+  #str(all_true_prop)
+  
+  unique_true_prop = unique(all_true_prop)
+  attr(unique_true_prop, "dataset") = attr(df, "dataset", TRUE)
+  
+  x = new_df(
+    dataset = attr(df, "dataset", TRUE),
+    nrow = nrow(df),
+    mean_true_prop = mean(df$mean_true_prop), # Ok since samples sizes are equal
+    sd_true_prop = stats::sd(all_true_prop, na.rm = FALSE),
+    mean_prop = mean(df$mean_prop), # Ok since samples sizes are equal
+    sd_prop = stats::sd(all_prop, na.rm = FALSE),
+    min_true_prop = min(df$min_true_prop, na.rm = FALSE),
+    max_true_prop = max(df$max_true_prop, na.rm = FALSE),
+    mean_unique_true_prop_x = mean(unique_true_prop[unique_true_prop > .025], na.rm = FALSE),
+    prevalence = mean(all_true_prop > .025, na.rm = FALSE)
+  )
+  
+  
+  true_prop_obj = c(true_prop_obj, list(unique_true_prop))
+  baz = c(baz, list(x))
+}
+
+baz = do.call(rbind, baz)
+baz
+```
+
+```{r fig.width=6.235, fig.height=2}
+#plots = list()
+#layout(matrix(c(1L, 1L, 1L, 1L), nrow = 1L))
+par(mfrow = c(1L, 4L))
+
+for (i in 1:length(true_prop_obj)) {
+  true_prop = true_prop_obj[[i]]
+  print(attr(true_prop, "dataset", TRUE)) # debug
+  
+  poor_quality = true_prop[true_prop > .025]
+  hist(
+    poor_quality,
+    main = sprintf("(%s) Dataset %s", letters[i], i), #attr(true_prop, "dataset", TRUE),
+    xlim = c(0L, .12),
+    breaks = seq(.026, .1, length.out = 8L),
+    xlab = if (i == 1L) "True Proportion" else "",
+    ylab = if (i == 1L) "Frequency" else "",
+    cex.axis = 1L,
+    cex.lab = 1.5
+  )
+  
+}
+```
+
